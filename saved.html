@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Saved Designs - CardGen</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <nav class="container nav">
+            <a href="index.html" class="logo">CardGen</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="create.html">Create Card</a></li>
+                <li><a href="templates.html">Templates</a></li>
+                <li><a href="saved.html" class="active">Saved Designs</a></li>
+            </ul>
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn btn-ghost btn-icon" title="Toggle Theme"><i
+                        class="fas fa-moon"></i></button>
+                <a href="create.html" class="btn btn-primary">Create New</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section style="padding: 60px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+                <h1>Your Saved Designs</h1>
+                <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All</button>
+            </div>
+
+            <div id="saved-designs-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <!-- Cards will be injected here by JS -->
+                <div id="no-designs"
+                    style="grid-column: 1/-1; text-align: center; padding: 100px 0; color: var(--text-muted);">
+                    <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                    <p>No designs saved yet. <a href="create.html" style="color: var(--primary-color);">Start
+                            creating!</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        function renderSaved() {
+            const grid = document.getElementById('saved-designs-grid');
+            const saved = JSON.parse(localStorage.getItem('savedCards') || '[]');
+
+            if (saved.length > 0) {
+                document.getElementById('no-designs').style.display = 'none';
+                grid.innerHTML = '';
+
+                saved.forEach(card => {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'feature-card';
+                    cardEl.style.textAlign = 'left';
+                    cardEl.innerHTML = `
+                        <div style="margin-bottom: 10px; font-weight: 700; font-size: 1.2rem;">${card.name}</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px;">${card.title}</div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="editCard(${card.id})"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn btn-danger" onclick="deleteCard(${card.id})"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    `;
+                    grid.appendChild(cardEl);
+                });
+            }
+        }
+
+        function deleteCard(id) {
+            if (confirm('Delete this design?')) {
+                let saved = JSON.parse(localStorage.getItem('savedCards') || '[]');
+                saved = saved.filter(c => c.id !== id);
+                localStorage.setItem('savedCards', JSON.stringify(saved));
+                renderSaved();
+            }
+        }
+
+        function clearAll() {
+            if (confirm('Clear all designs? This cannot be undone.')) {
+                localStorage.removeItem('savedCards');
+                renderSaved();
+            }
+        }
+
+        function editCard(id) {
+            window.location.href = `create.html?edit=${id}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', renderSaved);
+    </script>
+</body>
+
+</html>
